@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequence Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Sequence Predictor</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="sequence">Enter Sequence (comma-separated):</label>
+                <input type="text" id="sequence" name="sequence" required placeholder="e.g., 10, 20, 30, 40">
+            </div>
+            
+            <div class="form-group">
+                <label for="n_steps_out">Number of Predictions:</label>
+                <input type="number" id="n_steps_out" name="n_steps_out" min="1"  required>
+            </div>
+            
+            <button type="submit">Predict</button>
+        </form>
+
+        {% if predicted_sequence %}
+        <div class="results">
+            <h3>Input Sequence:</h3>
+            <p>{{ sequence }}</p>
+            <h3>Predicted Sequence:</h3>
+            <p>{{ predicted_sequence }}</p>
+            <div class="plot-container">
+                <img src="{{ url_for('static', filename='plot.png') }}" alt="Prediction Plot">
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
