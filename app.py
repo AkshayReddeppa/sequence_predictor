@@ -1,15 +1,20 @@
 from flask import Flask, render_template, request
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from io import BytesIO
+from plotly import graph_objects as go
+import plotly.io as pio
 import os
+import base64
+
+
 
 app = Flask(__name__)
 
 # Function to prepare data
+@app.template_filter('base64')
+def base64_filter(data):
+    return base64.b64encode(data.encode('utf-8')).decode('utf-8')
+
 def prepare_data(sequence, n_steps):
     X, y = [], []
     for i in range(len(sequence) - n_steps):
@@ -42,6 +47,7 @@ def index():
     predicted_sequence = None
     input_sequence_str = ""
     sequence = []
+    plot_div = None
     
     if request.method == "POST":
         # Get user input from form
@@ -59,22 +65,39 @@ def index():
         input_sequence = sequence[-n_steps_in:]
         predicted_sequence = predict_sequence(model, input_sequence, n_steps_out)
         
-        # Generate the plot
-        plt.figure(figsize=(10, 6))
-        plt.plot(range(len(sequence)), sequence, label="Original Sequence", marker='o', linestyle='-', color='blue')
-        plt.plot(range(len(sequence), len(sequence) + n_steps_out), predicted_sequence, label="Predicted Sequence", marker='x', linestyle='--', color='red')
-        plt.xlabel("Index")
-        plt.ylabel("Value")
-        plt.title("Original vs Predicted Sequence")
-        plt.legend()
-        plt.grid(True)
-        
-        # Save the plot as a static image
-        plot_path = os.path.join("static", "plot.png")
-        plt.savefig(plot_path)
-        plt.close()
+        # Create a Plotly graph
+        fig = go.Figure()
 
-    return render_template("index.html", sequence=input_sequence_str, predicted_sequence=predicted_sequence)
+        # Original sequence plot
+        fig.add_trace(go.Scatter(
+            x=list(range(len(sequence))),
+            y=sequence,
+            mode='lines+markers',
+            name='Original Sequence',
+            line=dict(color='blue')
+        ))
+
+        # Predicted sequence plot
+        fig.add_trace(go.Scatter(
+            x=list(range(len(sequence), len(sequence) + n_steps_out)),
+            y=predicted_sequence,
+            mode='lines+markers',
+            name='Predicted Sequence',
+            line=dict(color='red', dash='dash')
+        ))
+
+        # Add labels and title
+        fig.update_layout(
+            title="Original vs Predicted Sequence",
+            xaxis_title="Index",
+            yaxis_title="Value",
+            showlegend=True
+        )
+
+        # Generate HTML div for Plotly chart
+        plot_div = pio.to_html(fig, full_html=False)
+
+    return render_template("index.html", sequence=input_sequence_str, predicted_sequence=predicted_sequence, plot_div=plot_div)
 
 if __name__ == "__main__":
     app.run(debug=True)

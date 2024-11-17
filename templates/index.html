@@ -4,36 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sequence Predictor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h2>Sequence Predictor</h2>
-        <form method="POST">
-            <div class="form-group">
-                <label for="sequence">Enter Sequence (comma-separated):</label>
-                <input type="text" id="sequence" name="sequence" required placeholder="e.g., 10, 20, 30, 40">
-            </div>
-            
-            <div class="form-group">
-                <label for="n_steps_out">Number of Predictions:</label>
-                <input type="number" id="n_steps_out" name="n_steps_out" min="1"  required>
-            </div>
-            
-            <button type="submit">Predict</button>
-        </form>
+<body class="bg-gray-100 text-gray-900 font-sans antialiased">
 
-        {% if predicted_sequence %}
-        <div class="results">
-            <h3>Input Sequence:</h3>
-            <p>{{ sequence }}</p>
-            <h3>Predicted Sequence:</h3>
-            <p>{{ predicted_sequence }}</p>
-            <div class="plot-container">
-                <img src="{{ url_for('static', filename='plot.png') }}" alt="Prediction Plot">
-            </div>
+    <div class="container mx-auto p-6">
+        <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-3xl font-semibold text-center mb-6 text-blue-600">Sequence Predictor</h2>
+            
+            <form method="POST" class="space-y-6">
+                <!-- Input Sequence Field -->
+                <div class="form-group">
+                    <label for="sequence" class="block text-lg font-medium text-gray-700">Enter Sequence (comma-separated):</label>
+                    <input type="text" id="sequence" name="sequence" required class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600" placeholder="e.g., 10, 20, 30, 40">
+                </div>
+                
+                <!-- Number of Predictions Field -->
+                <div class="form-group">
+                    <label for="n_steps_out" class="block text-lg font-medium text-gray-700">Number of Predictions:</label>
+                    <input type="number" id="n_steps_out" name="n_steps_out" min="1" required class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600">
+                </div>
+                
+                <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600">Predict</button>
+            </form>
+
+            {% if predicted_sequence %}
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Results</h3>
+                    <div class="bg-gray-50 p-4 rounded-md shadow-sm mb-6">
+                        <h4 class="text-lg font-medium text-gray-700">Input Sequence:</h4>
+                        <p class="text-gray-600">{{ sequence }}</p>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-md shadow-sm mb-6">
+                        <h4 class="text-lg font-medium text-gray-700">Predicted Sequence:</h4>
+                        <p class="text-gray-600">{{ predicted_sequence }}</p>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-md shadow-sm mb-6">
+                        <h4 class="text-lg font-medium text-gray-700 mb-2">Plot:</h4>
+                        <div class="mb-4">
+                            <!-- Plotly Plot Embed -->
+                            <div class="w-full lg:h-96 md:h-80 h-64">
+                                <div>{{ plot_div|safe }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Download Button -->
+                        <a href="/download" class="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600">
+                            Download Plot
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
+    
 </body>
 </html>
